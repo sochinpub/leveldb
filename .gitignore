@@ -39,3 +39,5 @@
 # Build directory.
 build/
 out/
+.idea/
+cmake-build-debug/
