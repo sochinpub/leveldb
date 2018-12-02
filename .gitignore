@@ -41,3 +41,6 @@ build/
 out/
 .idea/
 cmake-build-debug/
+.project
+.cproject
+.settings/
