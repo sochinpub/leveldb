@@ -21,6 +21,12 @@ class Snapshot;
 // sequence of key,value pairs.  Each block may be compressed before
 // being stored in a file.  The following enum describes which
 // compression method (if any) is used to compress a block.
+
+/*
+ * 键值存在一系列的blocks中，每个block在存储前
+ * 都可以被压缩。压缩方法：目前仅仅支持不压缩和snappy压缩
+ *
+ */
 enum CompressionType {
   // NOTE: do not change the values of existing entries, as these are
   // part of the persistent format on disk.
@@ -29,6 +35,10 @@ enum CompressionType {
 };
 
 // Options to control the behavior of a database (passed to DB::Open)
+/*
+ *
+ * 控制数据库行为的选项
+ */
 struct LEVELDB_EXPORT Options {
   // -------------------
   // Parameters that affect behavior
@@ -39,14 +49,26 @@ struct LEVELDB_EXPORT Options {
   // REQUIRES: The client must ensure that the comparator supplied
   // here has the same name and orders keys *exactly* the same as the
   // comparator provided to previous open calls on the same DB.
+  /*
+   * 决定table中key排序的顺序，默认按照key的字母顺序排序。
+   *
+   * client必须保证，该comparator与之前打开数据库的调用
+   * 使用相同name和排序的comparator
+   */
   const Comparator* comparator;
 
   // If true, the database will be created if it is missing.
   // Default: false
+  /*
+   * 不存在时创建该数据库
+   */
   bool create_if_missing;
 
   // If true, an error is raised if the database already exists.
   // Default: false
+  /*
+   * 数据库存在时，抛出错误
+   */
   bool error_if_exists;
 
   // If true, the implementation will do aggressive checking of the
@@ -55,6 +77,10 @@ struct LEVELDB_EXPORT Options {
   // corruption of one DB entry may cause a large number of entries to
   // become unreadable or for the entire DB to become unopenable.
   // Default: false
+  /*
+   * ？？？？
+   *
+   */
   bool paranoid_checks;
 
   // Use the specified object to interact with the environment,
@@ -66,6 +92,10 @@ struct LEVELDB_EXPORT Options {
   // be written to info_log if it is non-null, or to a file stored
   // in the same directory as the DB contents if info_log is null.
   // Default: nullptr
+  /*
+   * 提供了logger,数据库内部的进度和错误信息会被记录到logger中，
+   * 或者记录到相同目录下的
+   */
   Logger* info_log;
 
   // -------------------
@@ -81,6 +111,13 @@ struct LEVELDB_EXPORT Options {
   // the next time the database is opened.
   //
   // Default: 4MB
+  /*
+   * 影响性能的参数。
+   * 在转换为磁盘上排序的数据库文件前，在内存中构造的数据缓存（磁盘上未排序的
+   * log支持）。
+   * 值越大，性能越好，特别是在批量加载时。
+   *
+   */
   size_t write_buffer_size;
 
   // Number of open files that can be used by the DB.  You may need to
@@ -88,6 +125,9 @@ struct LEVELDB_EXPORT Options {
   // one open file per 2MB of working set).
   //
   // Default: 1000
+  /*
+   * 数据库可以打开的文件句柄数目
+   */
   int max_open_files;
 
   // Control over blocks (user data is stored in a set of blocks, and
@@ -96,6 +136,11 @@ struct LEVELDB_EXPORT Options {
   // If non-null, use the specified cache for blocks.
   // If null, leveldb will automatically create and use an 8MB internal cache.
   // Default: nullptr
+  /*
+   * 非null, 使用内存缓存blocks;
+   * null，数据库会自动创建并使用一个8MB的内部缓存。（默认）
+   *
+   */
   Cache* block_cache;
 
   // Approximate size of user data packed per block.  Note that the
@@ -104,6 +149,11 @@ struct LEVELDB_EXPORT Options {
   // compression is enabled.  This parameter can be changed dynamically.
   //
   // Default: 4K
+  /*
+   * 每个block中用户数据的近似大小（未压缩前）。实际从磁盘读出的数据单位会偏小，因为压缩
+   * 存在。可以动态改变，默认4K。block是从磁盘读取的基本单位
+   *
+   */
   size_t block_size;
 
   // Number of keys between restart points for delta encoding of keys.
@@ -111,6 +161,9 @@ struct LEVELDB_EXPORT Options {
   // leave this parameter alone.
   //
   // Default: 16
+  /*
+   * 键增量编码重启点的键数目。可以动态改变，默认16
+   */
   int block_restart_interval;
 
   // Leveldb will write up to this amount of bytes to a file before
@@ -123,6 +176,11 @@ struct LEVELDB_EXPORT Options {
   // initially populating a large database.
   //
   // Default: 2MB
+  /*
+   * 每个数据库文件的大小限制，默认2MB。
+   *
+   *
+   */
   size_t max_file_size;
 
   // Compress blocks using the specified compression algorithm.  This
@@ -139,6 +197,10 @@ struct LEVELDB_EXPORT Options {
   // worth switching to kNoCompression.  Even if the input data is
   // incompressible, the kSnappyCompression implementation will
   // efficiently detect that and will switch to uncompressed mode.
+  /*
+   * 压缩数据块算法，该参数可以动态改变，默认KSnappy压缩。
+   *
+   */
   CompressionType compression;
 
   // EXPERIMENTAL: If true, append to existing MANIFEST and log files
@@ -152,22 +214,45 @@ struct LEVELDB_EXPORT Options {
   // NewBloomFilterPolicy() here.
   //
   // Default: nullptr
+  /*
+   * 过滤策略：
+   * 非null, 使用特殊的过滤策略来减少读磁盘数。
+   *
+   */
   const FilterPolicy* filter_policy;
 
   // Create an Options object with default values for all fields.
+  /*
+   * 默认值的Options
+   *
+   *
+   */
   Options();
 };
 
 // Options that control read operations
+
+/*
+ *
+ * 读选项
+ */
 struct LEVELDB_EXPORT ReadOptions {
   // If true, all data read from underlying storage will be
   // verified against corresponding checksums.
   // Default: false
+  /*
+   *
+   * 从存储上读出的数据要验证checksums
+   */
   bool verify_checksums;
 
   // Should the data read for this iteration be cached in memory?
   // Callers may wish to set this field to false for bulk scans.
   // Default: true
+  /*
+   *
+   * 读上来的数据是否填充到内存的缓存里
+   */
   bool fill_cache;
 
   // If "snapshot" is non-null, read as of the supplied snapshot
@@ -175,8 +260,16 @@ struct LEVELDB_EXPORT ReadOptions {
   // not have been released).  If "snapshot" is null, use an implicit
   // snapshot of the state at the beginning of this read operation.
   // Default: nullptr
+  /*
+   * 非null,读取所提供的快照（该快照必须隶属于要读取的数据库，并且没有被释放）
+   * null, 读取前，使用一个隐式快照
+   */
   const Snapshot* snapshot;
 
+  /*
+   * 默认：不校验checksum, 填充cache
+   *
+   */
   ReadOptions()
       : verify_checksums(false),
         fill_cache(true),
@@ -185,6 +278,10 @@ struct LEVELDB_EXPORT ReadOptions {
 };
 
 // Options that control write operations
+/*
+ *
+ * 写选项
+ */
 struct LEVELDB_EXPORT WriteOptions {
   // If true, the write will be flushed from the operating system
   // buffer cache (by calling WritableFile::Sync()) before the write
@@ -202,10 +299,17 @@ struct LEVELDB_EXPORT WriteOptions {
   // system call followed by "fsync()".
   //
   // Default: false
+  /*
+   * 写到底，操作系统缓存要刷下去，才返回写完成，影响写性能。
+   * 类似于：
+   * 1）false: write
+   * 2) true:  write, fsync
+   *
+   */
   bool sync;
 
   WriteOptions()
-      : sync(false) {
+      : sync(false) {       // 默认false
   }
 };
 

@@ -6,6 +6,7 @@
 
 namespace leveldb {
 
+// 析构Env
 Env::~Env() {
 }
 
@@ -13,18 +14,23 @@ Status Env::NewAppendableFile(const std::string& fname, WritableFile** result) {
   return Status::NotSupported("NewAppendableFile", fname);
 }
 
+// 析构SequentialFile
 SequentialFile::~SequentialFile() {
 }
 
+// 析构RandomAccessFile
 RandomAccessFile::~RandomAccessFile() {
 }
 
+// 析构WritableFile
 WritableFile::~WritableFile() {
 }
 
+// 析构Logger
 Logger::~Logger() {
 }
 
+// 析构Lock
 FileLock::~FileLock() {
 }
 
@@ -41,6 +47,7 @@ static Status DoWriteStringToFile(Env* env, const Slice& data,
                                   const std::string& fname,
                                   bool should_sync) {
   WritableFile* file;
+  // 创建可写文件对象
   Status s = env->NewWritableFile(fname, &file);
   if (!s.ok()) {
     return s;
@@ -71,13 +78,18 @@ Status WriteStringToFileSync(Env* env, const Slice& data,
 
 Status ReadFileToString(Env* env, const std::string& fname, std::string* data) {
   data->clear();
+  /*
+   * 打开顺序文件，生成文件对象
+   */
   SequentialFile* file;
   Status s = env->NewSequentialFile(fname, &file);
   if (!s.ok()) {
     return s;
   }
+  // 缓存
   static const int kBufferSize = 8192;
   char* space = new char[kBufferSize];
+  // 读到缓存中
   while (true) {
     Slice fragment;
     s = file->Read(kBufferSize, &fragment, space);

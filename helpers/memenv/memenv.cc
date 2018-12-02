@@ -19,6 +19,7 @@
 
 namespace leveldb {
 
+// 匿名命名空间
 namespace {
 
 class FileState {

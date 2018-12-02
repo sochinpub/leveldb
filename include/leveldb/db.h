@@ -14,6 +14,10 @@
 namespace leveldb {
 
 // Update Makefile if you change these
+/*
+ *
+ * 版本v1.20
+ */
 static const int kMajorVersion = 1;
 static const int kMinorVersion = 20;
 
@@ -42,6 +46,14 @@ struct LEVELDB_EXPORT Range {
 // A DB is a persistent ordered map from keys to values.
 // A DB is safe for concurrent access from multiple threads without
 // any external synchronization.
+/*
+ * 数据库是一个持久化的，有序的键值映射：
+ *  一个数据库在单进程多线程中可以并发访问
+ *
+ *
+ *
+ *
+ */
 class LEVELDB_EXPORT DB {
  public:
   // Open the database with the specified "name".
@@ -49,16 +61,27 @@ class LEVELDB_EXPORT DB {
   // OK on success.
   // Stores nullptr in *dbptr and returns a non-OK status on error.
   // Caller should delete *dbptr when it is no longer needed.
+  /*
+   * 打开数据库
+   *
+   */
   static Status Open(const Options& options,
                      const std::string& name,
                      DB** dbptr);
 
+  // 默认构造器
   DB() = default;
 
+  // 不允许拷贝构造和赋值
   DB(const DB&) = delete;
   DB& operator=(const DB&) = delete;
 
   virtual ~DB();
+
+  /*
+   * 纯虚函数：提供基本接口
+   *
+   */
 
   // Set the database entry for "key" to "value".  Returns OK on success,
   // and a non-OK status on error.
@@ -153,6 +176,10 @@ class LEVELDB_EXPORT DB {
 //
 // Note: For backwards compatibility, if DestroyDB is unable to list the
 // database files, Status::OK() will still be returned masking this failure.
+/*
+ * 销毁DB（持久化文件）：向后兼容
+ *
+ */
 LEVELDB_EXPORT Status DestroyDB(const std::string& name,
                                 const Options& options);
 
@@ -160,6 +187,10 @@ LEVELDB_EXPORT Status DestroyDB(const std::string& name,
 // resurrect as much of the contents of the database as possible.
 // Some data may be lost, so be careful when calling this function
 // on a database that contains important information.
+/*
+ * 无法打开数据库时，重新修正数据库，可能会丢失数据。
+ *
+ */
 LEVELDB_EXPORT Status RepairDB(const std::string& dbname,
                                const Options& options);
 

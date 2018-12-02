@@ -23,6 +23,9 @@ Iterator::~Iterator() {
   }
 }
 
+/*
+ * 插入到cleanup_head_的后面
+ */
 void Iterator::RegisterCleanup(CleanupFunction func, void* arg1, void* arg2) {
   assert(func != nullptr);
   CleanupNode* node;
@@ -38,11 +41,19 @@ void Iterator::RegisterCleanup(CleanupFunction func, void* arg1, void* arg2) {
   node->arg2 = arg2;
 }
 
+/*
+ *
+ * 内部匿名空间
+ */
 namespace {
 
 class EmptyIterator : public Iterator {
  public:
   EmptyIterator(const Status& s) : status_(s) { }
+  /*
+   *
+   * 从基类重载
+   */
   ~EmptyIterator() override = default;
 
   bool Valid() const override { return false; }

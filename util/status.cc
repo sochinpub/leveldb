@@ -10,7 +10,15 @@ namespace leveldb {
 
 const char* Status::CopyState(const char* state) {
   uint32_t size;
+  /*
+   * length of message
+   */
   memcpy(&size, state, sizeof(size));
+  /*
+   * size: 4B
+   * code+message: size
+   * \0: 1B
+   */
   char* result = new char[size + 5];
   memcpy(result, state, size + 5);
   return result;
@@ -64,12 +72,15 @@ std::string Status::ToString() const {
         type = tmp;
         break;
     }
+    // 生成string
     std::string result(type);
     uint32_t length;
+    // 拷贝前4B：length of message
     memcpy(&length, state_, sizeof(length));
+    // code + message
     result.append(state_ + 5, length);
     return result;
-  }
+  } // else
 }
 
 }  // namespace leveldb

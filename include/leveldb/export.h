@@ -5,9 +5,10 @@
 #ifndef STORAGE_LEVELDB_INCLUDE_EXPORT_H_
 #define STORAGE_LEVELDB_INCLUDE_EXPORT_H_
 
-#if !defined(LEVELDB_EXPORT)
+#if !defined(LEVELDB_EXPORT)        // 非直接输出leveldb二进制
 
 #if defined(LEVELDB_SHARED_LIBRARY)
+
 #if defined(_WIN32)
 
 #if defined(LEVELDB_COMPILE_LIBRARY)
@@ -16,16 +17,18 @@
 #define LEVELDB_EXPORT __declspec(dllimport)
 #endif  // defined(LEVELDB_COMPILE_LIBRARY)
 
-#else  // defined(_WIN32)
-#if defined(LEVELDB_COMPILE_LIBRARY)
+#else  // defined(_WIN32)                       // 非windows环境
+
+#if defined(LEVELDB_COMPILE_LIBRARY)            //
 #define LEVELDB_EXPORT __attribute__((visibility("default")))
 #else
 #define LEVELDB_EXPORT
 #endif
+
 #endif  // defined(_WIN32)
 
 #else  // defined(LEVELDB_SHARED_LIBRARY)
-#define LEVELDB_EXPORT
+#define LEVELDB_EXPORT                          // 直接输出leveldb二进制
 #endif
 
 #endif  // !defined(LEVELDB_EXPORT)

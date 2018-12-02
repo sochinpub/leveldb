@@ -29,12 +29,22 @@ class LEVELDB_EXPORT TableBuilder {
   // Create a builder that will store the contents of the table it is
   // building in *file.  Does not close the file.  It is up to the
   // caller to close the file after calling Finish().
+  /*
+   * 创建一个builder,存储表内容
+   *
+   */
   TableBuilder(const Options& options, WritableFile* file);
 
+  /*
+   * 禁止拷贝和赋值
+   */
   TableBuilder(const TableBuilder&) = delete;
   void operator=(const TableBuilder&) = delete;
 
   // REQUIRES: Either Finish() or Abandon() has been called.
+  /*
+   * 只有Finish或Abandon被调用之后，才能析构掉
+   */
   ~TableBuilder();
 
   // Change the options used by this builder.  Note: only some of the
@@ -43,17 +53,28 @@ class LEVELDB_EXPORT TableBuilder {
   // passed to the constructor is different from its value in the
   // structure passed to this method, this method will return an error
   // without changing any fields.
+  /*
+   * 修改Options中可修改域
+   */
   Status ChangeOptions(const Options& options);
 
   // Add key,value to the table being constructed.
   // REQUIRES: key is after any previously added key according to comparator.
   // REQUIRES: Finish(), Abandon() have not been called
+  /*
+   * 向table中添加key,value对。
+   *   key必须比前面添加的key顺序；
+   *   Finish（）和Abandon()没有被调用
+   */
   void Add(const Slice& key, const Slice& value);
 
   // Advanced operation: flush any buffered key/value pairs to file.
   // Can be used to ensure that two adjacent entries never live in
   // the same data block.  Most clients should not need to use this method.
   // REQUIRES: Finish(), Abandon() have not been called
+  /*
+   * 将缓存buffer的key/value对刷到磁盘文件中
+   */
   void Flush();
 
   // Return non-ok iff some error has been detected.
@@ -62,6 +83,9 @@ class LEVELDB_EXPORT TableBuilder {
   // Finish building the table.  Stops using the file passed to the
   // constructor after this function returns.
   // REQUIRES: Finish(), Abandon() have not been called
+  /*
+   * 停止表的构造，停止向文件中写入。
+   */
   Status Finish();
 
   // Indicate that the contents of this builder should be abandoned.  Stops
@@ -69,13 +93,24 @@ class LEVELDB_EXPORT TableBuilder {
   // If the caller is not going to call Finish(), it must call Abandon()
   // before destroying this builder.
   // REQUIRES: Finish(), Abandon() have not been called
+  /*
+   * 丢弃表中已经构造的数据，停止使用当前数据库文件。
+   *
+   */
   void Abandon();
 
   // Number of calls to Add() so far.
+  /*
+   * Add()添加的entries数目
+   */
   uint64_t NumEntries() const;
 
   // Size of the file generated so far.  If invoked after a successful
   // Finish() call, returns the size of the final generated file.
+  /*
+   *
+   *
+   */
   uint64_t FileSize() const;
 
  private:

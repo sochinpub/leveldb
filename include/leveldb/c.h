@@ -40,7 +40,7 @@
 #ifndef STORAGE_LEVELDB_INCLUDE_C_H_
 #define STORAGE_LEVELDB_INCLUDE_C_H_
 
-#ifdef __cplusplus
+#ifdef __cplusplus                  // C++下编译C
 extern "C" {
 #endif
 
@@ -59,17 +59,28 @@ typedef struct leveldb_filelock_t      leveldb_filelock_t;
 typedef struct leveldb_filterpolicy_t  leveldb_filterpolicy_t;
 typedef struct leveldb_iterator_t      leveldb_iterator_t;
 typedef struct leveldb_logger_t        leveldb_logger_t;
+// 数据库操作选项
 typedef struct leveldb_options_t       leveldb_options_t;
 typedef struct leveldb_randomfile_t    leveldb_randomfile_t;
+// 读数据库选项
 typedef struct leveldb_readoptions_t   leveldb_readoptions_t;
 typedef struct leveldb_seqfile_t       leveldb_seqfile_t;
 typedef struct leveldb_snapshot_t      leveldb_snapshot_t;
 typedef struct leveldb_writablefile_t  leveldb_writablefile_t;
+// 原子批量写
 typedef struct leveldb_writebatch_t    leveldb_writebatch_t;
+// 写数据库的选项
 typedef struct leveldb_writeoptions_t  leveldb_writeoptions_t;
 
 /* DB operations */
-
+/*
+ *
+ *
+ * 数据库操作
+ *
+ *
+ *
+ */
 LEVELDB_EXPORT leveldb_t* leveldb_open(const leveldb_options_t* options,
                                        const char* name, char** errptr);
 
@@ -91,21 +102,45 @@ LEVELDB_EXPORT void leveldb_write(leveldb_t* db,
 
 /* Returns NULL if not found.  A malloc()ed array otherwise.
    Stores the length of the array in *vallen. */
+
+/*
+ * 获取给定key的value:
+ *
+ *
+ */
 LEVELDB_EXPORT char* leveldb_get(leveldb_t* db,
                                  const leveldb_readoptions_t* options,
                                  const char* key, size_t keylen, size_t* vallen,
                                  char** errptr);
 
+/*
+ * 读数据库的迭代器
+ *
+ *
+ */
 LEVELDB_EXPORT leveldb_iterator_t* leveldb_create_iterator(
     leveldb_t* db, const leveldb_readoptions_t* options);
 
+/*
+ * 创建数据库快照
+ *
+ */
 LEVELDB_EXPORT const leveldb_snapshot_t* leveldb_create_snapshot(leveldb_t* db);
 
+/*
+ * 释放数据库快照
+ *
+ */
 LEVELDB_EXPORT void leveldb_release_snapshot(
     leveldb_t* db, const leveldb_snapshot_t* snapshot);
 
 /* Returns NULL if property name is unknown.
    Else returns a pointer to a malloc()-ed null-terminated value. */
+/*
+ * 数据库的属性
+ *
+ *
+ */
 LEVELDB_EXPORT char* leveldb_property_value(leveldb_t* db,
                                             const char* propname);
 
@@ -114,6 +149,10 @@ LEVELDB_EXPORT void leveldb_approximate_sizes(
     const size_t* range_start_key_len, const char* const* range_limit_key,
     const size_t* range_limit_key_len, uint64_t* sizes);
 
+/*
+ * 数据库压缩范围：由key限定， start_key:limit_key
+ *
+ */
 LEVELDB_EXPORT void leveldb_compact_range(leveldb_t* db, const char* start_key,
                                           size_t start_key_len,
                                           const char* limit_key,
@@ -128,6 +167,14 @@ LEVELDB_EXPORT void leveldb_repair_db(const leveldb_options_t* options,
                                       const char* name, char** errptr);
 
 /* Iterator */
+
+/*
+ * 迭代器接口设计：
+ * 销毁；
+ *
+ *
+ *
+ */
 
 LEVELDB_EXPORT void leveldb_iter_destroy(leveldb_iterator_t*);
 LEVELDB_EXPORT unsigned char leveldb_iter_valid(const leveldb_iterator_t*);
@@ -188,7 +235,7 @@ LEVELDB_EXPORT void leveldb_options_set_block_restart_interval(
     leveldb_options_t*, int);
 LEVELDB_EXPORT void leveldb_options_set_max_file_size(leveldb_options_t*,
                                                       size_t);
-
+// 是否压缩
 enum {
   leveldb_no_compression = 0,
   leveldb_snappy_compression = 1

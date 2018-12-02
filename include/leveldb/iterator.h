@@ -21,10 +21,16 @@
 
 namespace leveldb {
 
+/*
+ * 迭代器
+ */
 class LEVELDB_EXPORT Iterator {
  public:
   Iterator();
 
+  /*
+   * 不允许拷贝和赋值
+   */
   Iterator(const Iterator&) = delete;
   Iterator& operator=(const Iterator&) = delete;
 
@@ -32,14 +38,24 @@ class LEVELDB_EXPORT Iterator {
 
   // An iterator is either positioned at a key/value pair, or
   // not valid.  This method returns true iff the iterator is valid.
+  /*
+   *
+   * 迭代器要么指到一个key/value，要么not valid
+   */
   virtual bool Valid() const = 0;
 
   // Position at the first key in the source.  The iterator is Valid()
   // after this call iff the source is not empty.
+  /*
+   * 指到首元素，valid()
+   */
   virtual void SeekToFirst() = 0;
 
   // Position at the last key in the source.  The iterator is
   // Valid() after this call iff the source is not empty.
+  /*
+   * 指向尾元素，valid()
+   */
   virtual void SeekToLast() = 0;
 
   // Position at the first key in the source that is at or past target.
@@ -61,6 +77,9 @@ class LEVELDB_EXPORT Iterator {
   // the returned slice is valid only until the next modification of
   // the iterator.
   // REQUIRES: Valid()
+  /*
+   * 当前元素的key
+   */
   virtual Slice key() const = 0;
 
   // Return the value for the current entry.  The underlying storage for
@@ -77,14 +96,29 @@ class LEVELDB_EXPORT Iterator {
   //
   // Note that unlike all of the preceding methods, this method is
   // not abstract and therefore clients should not override it.
+  /*
+   * 用户注册一个当迭代器被销毁时，回调的清理函数，原型：
+   * void (*) (void *arg1, void *arg2)
+   *
+   *
+   */
   using CleanupFunction = void (*)(void* arg1, void* arg2);
+  /*
+   * 注册清理函数
+   */
   void RegisterCleanup(CleanupFunction function, void* arg1, void* arg2);
 
  private:
   // Cleanup functions are stored in a single-linked list.
   // The list's head node is inlined in the iterator.
+  /*
+   * cleanup节点，单链表数据结构存储
+   */
   struct CleanupNode {
     // The head node is used if the function pointer is not null.
+    /*
+     * 非null，该节点被使用
+     */
     CleanupFunction function;
     void* arg1;
     void* arg2;

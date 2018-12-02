@@ -46,6 +46,7 @@ BlockBuilder::BlockBuilder(const Options* options)
 }
 
 void BlockBuilder::Reset() {
+
   buffer_.clear();
   restarts_.clear();
   restarts_.push_back(0);       // First restart point is at offset 0
@@ -55,7 +56,7 @@ void BlockBuilder::Reset() {
 }
 
 size_t BlockBuilder::CurrentSizeEstimate() const {
-  return (buffer_.size() +                        // Raw data buffer
+  return (buffer_.size() +                        // Raw data buffer        纯数据
           restarts_.size() * sizeof(uint32_t) +   // Restart array
           sizeof(uint32_t));                      // Restart array length
 }

@@ -22,26 +22,40 @@
 #include "leveldb/export.h"
 
 namespace leveldb {
-
+/*
+ * 字符串切片类
+ */
 class LEVELDB_EXPORT Slice {
+
  public:
   // Create an empty slice.
+  // 无参构造函数
   Slice() : data_(""), size_(0) { }
-
   // Create a slice that refers to d[0,n-1].
+  // const char* 0,n-1切片
   Slice(const char* d, size_t n) : data_(d), size_(n) { }
 
   // Create a slice that refers to the contents of "s"
+  // string对象的切片
   Slice(const std::string& s) : data_(s.data()), size_(s.size()) { }
 
   // Create a slice that refers to s[0,strlen(s)-1]
+  // const char* 全长度切片
   Slice(const char* s) : data_(s), size_(strlen(s)) { }
 
   // Intentionally copyable.
+  /*
+   *
+   * 默认的拷贝拷贝和赋值行为
+   */
   Slice(const Slice&) = default;
   Slice& operator=(const Slice&) = default;
 
   // Return a pointer to the beginning of the referenced data
+  /*
+   *
+   * 返回切片数据的指针
+   */
   const char* data() const { return data_; }
 
   // Return the length (in bytes) of the referenced data
@@ -52,15 +66,27 @@ class LEVELDB_EXPORT Slice {
 
   // Return the ith byte in the referenced data.
   // REQUIRES: n < size()
+  /*
+   *
+   * []重载
+   */
   char operator[](size_t n) const {
     assert(n < size());
     return data_[n];
   }
 
   // Change this slice to refer to an empty array
+  /*
+   * 原始指针内存泄漏？？？？
+   *
+   */
   void clear() { data_ = ""; size_ = 0; }
 
   // Drop the first "n" bytes from this slice.
+  /*
+   * 切片前n个字符移除
+   *
+   */
   void remove_prefix(size_t n) {
     assert(n <= size());
     data_ += n;
@@ -68,6 +94,10 @@ class LEVELDB_EXPORT Slice {
   }
 
   // Return a string that contains the copy of the referenced data.
+  /*
+   *
+   * 构造string对象
+   */
   std::string ToString() const { return std::string(data_, size_); }
 
   // Three-way comparison.  Returns value:
@@ -87,19 +117,31 @@ class LEVELDB_EXPORT Slice {
   size_t size_;
 };
 
+/*
+ *
+ * ==重载
+ */
 inline bool operator==(const Slice& x, const Slice& y) {
   return ((x.size() == y.size()) &&
           (memcmp(x.data(), y.data(), x.size()) == 0));
 }
 
+/*
+ * !=重载
+ */
 inline bool operator!=(const Slice& x, const Slice& y) {
   return !(x == y);
 }
 
+/*
+ * 排序对比函数
+ *
+ */
 inline int Slice::compare(const Slice& b) const {
   const size_t min_len = (size_ < b.size_) ? size_ : b.size_;
   int r = memcmp(data_, b.data_, min_len);
   if (r == 0) {
+    // 前缀相同，比较size
     if (size_ < b.size_) r = -1;
     else if (size_ > b.size_) r = +1;
   }
